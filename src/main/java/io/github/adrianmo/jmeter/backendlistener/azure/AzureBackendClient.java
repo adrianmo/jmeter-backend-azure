@@ -2,12 +2,15 @@ package io.github.adrianmo.jmeter.backendlistener.azure;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
+import com.microsoft.applicationinsights.internal.util.MapUtil;
+import com.microsoft.applicationinsights.telemetry.MetricTelemetry;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +51,12 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         properties.put("GrpThreads", Integer.toString(sr.getGroupThreads()));
         properties.put("AllThreads", Integer.toString(sr.getAllThreads()));
 
-        client.trackMetric(name, value, sr.getSampleCount(), value, value, value, properties);
+        MetricTelemetry metric = new MetricTelemetry(name, value);
+        metric.setCount(sr.getSampleCount());
+        metric.setTimestamp(new Date(sr.getTimeStamp()));
+        MapUtil.copy(properties, metric.getProperties());
+        client.trackMetric(metric);
     }
-
 
     @Override
     public void handleSampleResults(List<SampleResult> results, BackendListenerContext context) {
