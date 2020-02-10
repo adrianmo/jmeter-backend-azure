@@ -2,6 +2,7 @@ package io.github.adrianmo.jmeter.backendlistener.azure;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
@@ -14,11 +15,23 @@ import java.util.Map;
 public class AzureBackendClient extends AbstractBackendListenerClient {
 
     private TelemetryClient client;
+    private static final String INSTRUMENTATION_KEY = "instrumentationKey";
+
+    public AzureBackendClient() {
+        super();
+    }
+
+    @Override
+    public Arguments getDefaultParameters() {
+        Arguments arguments = new Arguments();
+        arguments.addArgument(INSTRUMENTATION_KEY, "");
+        return arguments;
+    }
 
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
-        TelemetryClient client = new TelemetryClient(TelemetryConfiguration.createDefault());
-        client.getContext().setInstrumentationKey("");
+        client = new TelemetryClient(TelemetryConfiguration.createDefault());
+        client.getContext().setInstrumentationKey(context.getParameter(INSTRUMENTATION_KEY));
         super.setupTest(context);
     }
 
@@ -38,8 +51,9 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         client.trackMetric(name, value, sr.getSampleCount(), value, value, value, properties);
     }
 
+
     @Override
-    public void handleSampleResults(List<SampleResult> results, BackendListenerContext backendListenerContext) {
+    public void handleSampleResults(List<SampleResult> results, BackendListenerContext context) {
         for (SampleResult sr : results) {
             trackMetric("Bytes", (double)sr.getBytesAsLong(), sr);
             trackMetric("SentBytes", (double)sr.getSentBytes(), sr);
@@ -49,6 +63,12 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
             trackMetric("Latency", (double)sr.getLatency(), sr);
             trackMetric("ResponseTime", (double)sr.getTime(), sr);
         }
+    }
+
+    @Override
+    public void teardownTest(BackendListenerContext context) throws Exception {
+        client.flush();
+        super.teardownTest(context);
     }
 
 }
