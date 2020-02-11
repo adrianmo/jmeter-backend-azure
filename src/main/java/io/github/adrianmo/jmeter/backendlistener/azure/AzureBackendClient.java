@@ -19,7 +19,7 @@ import java.util.Map;
 public class AzureBackendClient extends AbstractBackendListenerClient {
 
     private TelemetryClient client;
-    private static final String METRIC_NAME = "metricName";
+    private static final String TEST_NAME = "testName";
     private static final String INSTRUMENTATION_KEY = "instrumentationKey";
 
     public AzureBackendClient() {
@@ -29,7 +29,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     @Override
     public Arguments getDefaultParameters() {
         Arguments arguments = new Arguments();
-        arguments.addArgument(METRIC_NAME, "jmeter");
+        arguments.addArgument(TEST_NAME, "jmeter");
         arguments.addArgument(INSTRUMENTATION_KEY, "");
         return arguments;
     }
@@ -72,7 +72,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     @Override
     public void handleSampleResults(List<SampleResult> results, BackendListenerContext context) {
         for (SampleResult sr : results) {
-            trackRequest(context.getParameter(METRIC_NAME), sr);
+            trackRequest(context.getParameter(TEST_NAME), sr);
         }
     }
 
@@ -81,5 +81,4 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         client.flush();
         super.teardownTest(context);
     }
-
 }

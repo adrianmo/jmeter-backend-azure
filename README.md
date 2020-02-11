@@ -44,7 +44,7 @@ Then, restart JMeter and the plugin should be loaded.
 
 To make JMeter send test result metrics to Azure Application Insights, in your **Test Pan**, right click on 
 **Thread Group** > Add > Listener > Backend Listener, and choose `io.github.adrianmo.jmeter.backendlistener.azure.AzureBackendClient` as `Backend Listener Implementation`. 
-Then, specify the metric name and the Application Insights instrumentation key as a parameter as shown in image below.
+Then, specify the test name and the Application Insights instrumentation key as a parameter as shown in image below.
 
 ![Screenshot of configuration](docs/configuration.png "Screenshot of JMeter configuration")
 
