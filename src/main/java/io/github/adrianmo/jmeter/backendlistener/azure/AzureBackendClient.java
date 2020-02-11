@@ -3,7 +3,8 @@ package io.github.adrianmo.jmeter.backendlistener.azure;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
 import com.microsoft.applicationinsights.internal.util.MapUtil;
-import com.microsoft.applicationinsights.telemetry.MetricTelemetry;
+import com.microsoft.applicationinsights.telemetry.Duration;
+import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class AzureBackendClient extends AbstractBackendListenerClient {
 
     private TelemetryClient client;
+    private static final String METRIC_NAME = "metricName";
     private static final String INSTRUMENTATION_KEY = "instrumentationKey";
 
     public AzureBackendClient() {
@@ -27,6 +29,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     @Override
     public Arguments getDefaultParameters() {
         Arguments arguments = new Arguments();
+        arguments.addArgument(METRIC_NAME, "jmeter");
         arguments.addArgument(INSTRUMENTATION_KEY, "");
         return arguments;
     }
@@ -38,8 +41,14 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         super.setupTest(context);
     }
 
-    private void trackMetric(String name, Double value, SampleResult sr) {
+    private void trackRequest(String name, SampleResult sr) {
         Map<String, String> properties = new HashMap<String, String>();
+        properties.put("Bytes", Long.toString(sr.getBytesAsLong()));
+        properties.put("SentBytes", Long.toString(sr.getSentBytes()));
+        properties.put("ConnectTime", Long.toString(sr.getConnectTime()));
+        properties.put("ErrorCount", Integer.toString(sr.getErrorCount()));
+        properties.put("IdleTime", Double.toString(sr.getIdleTime()));
+        properties.put("Latency", Double.toString(sr.getLatency()));
         properties.put("BodySize", Long.toString(sr.getBodySizeAsLong()));
         properties.put("TestStartTime", Long.toString(JMeterContextService.getTestStartTime()));
         properties.put("SampleStartTime", Long.toString(sr.getStartTime()));
@@ -50,24 +59,20 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         properties.put("ResponseCode", sr.getResponseCode());
         properties.put("GrpThreads", Integer.toString(sr.getGroupThreads()));
         properties.put("AllThreads", Integer.toString(sr.getAllThreads()));
+        properties.put("SampleCount", Integer.toString(sr.getSampleCount()));
 
-        MetricTelemetry metric = new MetricTelemetry(name, value);
-        metric.setCount(sr.getSampleCount());
-        metric.setTimestamp(new Date(sr.getTimeStamp()));
-        MapUtil.copy(properties, metric.getProperties());
-        client.trackMetric(metric);
+        Date timestamp = new Date(sr.getTimeStamp());
+        Duration duration = new Duration(sr.getTime());
+        RequestTelemetry req = new RequestTelemetry(name, timestamp, duration, sr.getResponseCode(), sr.getErrorCount() == 0);
+        req.setUrl(sr.getURL());
+        MapUtil.copy(properties, req.getProperties());
+        client.trackRequest(req);
     }
 
     @Override
     public void handleSampleResults(List<SampleResult> results, BackendListenerContext context) {
         for (SampleResult sr : results) {
-            trackMetric("Bytes", (double)sr.getBytesAsLong(), sr);
-            trackMetric("SentBytes", (double)sr.getSentBytes(), sr);
-            trackMetric("ConnectTime", (double)sr.getConnectTime(), sr);
-            trackMetric("ErrorCount", (double)sr.getErrorCount(), sr);
-            trackMetric("IdleTime", (double)sr.getIdleTime(), sr);
-            trackMetric("Latency", (double)sr.getLatency(), sr);
-            trackMetric("ResponseTime", (double)sr.getTime(), sr);
+            trackRequest(context.getParameter(METRIC_NAME), sr);
         }
     }
 
