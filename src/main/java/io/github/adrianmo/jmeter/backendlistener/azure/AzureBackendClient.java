@@ -2,6 +2,7 @@ package io.github.adrianmo.jmeter.backendlistener.azure;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
+import com.microsoft.applicationinsights.internal.quickpulse.QuickPulse;
 import com.microsoft.applicationinsights.internal.util.MapUtil;
 import com.microsoft.applicationinsights.telemetry.Duration;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
@@ -21,6 +22,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private TelemetryClient client;
     private static final String TEST_NAME = "testName";
     private static final String INSTRUMENTATION_KEY = "instrumentationKey";
+    private static final String LIVE_METRICS = "liveMetrics";
 
     public AzureBackendClient() {
         super();
@@ -31,13 +33,20 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         Arguments arguments = new Arguments();
         arguments.addArgument(TEST_NAME, "jmeter");
         arguments.addArgument(INSTRUMENTATION_KEY, "");
+        arguments.addArgument(LIVE_METRICS, "true");
+
         return arguments;
     }
 
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
-        client = new TelemetryClient(TelemetryConfiguration.createDefault());
-        client.getContext().setInstrumentationKey(context.getParameter(INSTRUMENTATION_KEY));
+        boolean liveMetrics = context.getBooleanParameter(LIVE_METRICS, true);
+        TelemetryConfiguration config = TelemetryConfiguration.createDefault();
+        config.setInstrumentationKey(context.getParameter(INSTRUMENTATION_KEY));
+        client = new TelemetryClient(config);
+        if (liveMetrics) {
+            QuickPulse.INSTANCE.initialize(config);
+        }
         super.setupTest(context);
     }
 
