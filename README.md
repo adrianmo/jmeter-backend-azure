@@ -52,6 +52,8 @@ Then, in the Parameters table, configure the following attributes.
 | *testName* | Name of the test. This value is used to differentiate metrics across test runs or plans in Application Insights and allow you to filter them. | Yes |
 | *liveMetrics* | Boolean to indicate whether or not real-time metrics are enabled and available in the [Live Metrics Stream](https://docs.microsoft.com/en-us/azure/azure-monitor/app/live-stream). Defaults to `true`. | No |
 
+*Example of configuration:*
+
 ![Screenshot of configuration](docs/configuration.png "Screenshot of JMeter configuration")
 
 ### Visualization
@@ -61,7 +63,7 @@ In the image you can see an example of how you can visualize the duration of the
 
 ![Request duration](docs/requestduration.png "Screenshot of test requests duration")
 
-Additionally, if you `liveMetrics` is enabled in the configuration, you can watch your test performance in real-time in the Live Metrics Stream blade.
+Additionally, if you enabled `liveMetrics` in the configuration, you can watch your test performance in real-time in the Live Metrics Stream blade.
 
 ![Live Metrics Stream](docs/livemetrics.png "Screenshot of live metrics stream")
 
