@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class AzureBackendClient extends AbstractBackendListenerClient {
 
-    private TelemetryClient client;
+    private TelemetryClient telemetryClient;
     private static final String TEST_NAME = "testName";
     private static final String INSTRUMENTATION_KEY = "instrumentationKey";
     private static final String LIVE_METRICS = "liveMetrics";
@@ -43,7 +43,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         boolean liveMetrics = context.getBooleanParameter(LIVE_METRICS, true);
         TelemetryConfiguration config = TelemetryConfiguration.createDefault();
         config.setInstrumentationKey(context.getParameter(INSTRUMENTATION_KEY));
-        client = new TelemetryClient(config);
+        telemetryClient = new TelemetryClient(config);
         if (liveMetrics) {
             QuickPulse.INSTANCE.initialize(config);
         }
@@ -73,9 +73,13 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         Date timestamp = new Date(sr.getTimeStamp());
         Duration duration = new Duration(sr.getTime());
         RequestTelemetry req = new RequestTelemetry(name, timestamp, duration, sr.getResponseCode(), sr.getErrorCount() == 0);
-        req.setUrl(sr.getURL());
+
+        if (sr.getURL() != null) {
+            req.setUrl(sr.getURL());
+        }
+
         MapUtil.copy(properties, req.getProperties());
-        client.trackRequest(req);
+        telemetryClient.trackRequest(req);
     }
 
     @Override
@@ -87,7 +91,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
 
     @Override
     public void teardownTest(BackendListenerContext context) throws Exception {
-        client.flush();
+        telemetryClient.flush();
         super.teardownTest(context);
     }
 }
