@@ -51,6 +51,9 @@ Then, in the Parameters table, configure the following attributes.
 | *instrumentationKey* | The Instrumentation Key of your Application Insights instance | Yes |
 | *testName* | Name of the test. This value is used to differentiate metrics across test runs or plans in Application Insights and allow you to filter them. | Yes |
 | *liveMetrics* | Boolean to indicate whether or not real-time metrics are enabled and available in the [Live Metrics Stream](https://docs.microsoft.com/en-us/azure/azure-monitor/app/live-stream). Defaults to `true`. | No |
+| *samplersList* | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No |
+| *useRegexForSamplerList* | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`. | No |
+
 
 *Example of configuration:*
 

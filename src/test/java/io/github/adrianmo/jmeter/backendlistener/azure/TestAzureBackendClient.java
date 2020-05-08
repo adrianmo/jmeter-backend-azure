@@ -9,9 +9,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
@@ -34,6 +36,8 @@ public class TestAzureBackendClient {
         Arguments args = new Arguments();
         args.addArgument("testName", "test-1");
         context = new BackendListenerContext(args);
+        Whitebox.setInternalState(client, "testName", "test-1");
+        Whitebox.setInternalState(client, "samplersToFilter", new HashSet<>());
     }
 
     @Test
