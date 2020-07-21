@@ -13,9 +13,11 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +37,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final String KEY_LIVE_METRICS = "liveMetrics";
     private static final String KEY_SAMPLERS_LIST = "samplersList";
     private static final String KEY_USE_REGEX_FOR_SAMPLER_LIST = "useRegexForSamplerList";
+    private static final String KEY_CUSTOM_PROPERTIES_PREFIX = "ai.";
 
     /**
      * Default argument values.
@@ -59,6 +62,11 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
      * Name of the test.
      */
     private String testName;
+
+    /**
+     * Custom properties.
+     */
+    private Map<String, String> customProperties = new HashMap<String, String>();
 
     /**
      * Whether to send metrics to the Live Metrics Stream.
@@ -103,6 +111,14 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         samplersList = context.getParameter(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST).trim();
         useRegexForSamplerList = context.getBooleanParameter(KEY_USE_REGEX_FOR_SAMPLER_LIST, DEFAULT_USE_REGEX_FOR_SAMPLER_LIST);
 
+        Iterator<String> iterator = context.getParameterNamesIterator();
+        while (iterator.hasNext()) {
+            String paramName = iterator.next();
+            if (paramName.startsWith(KEY_CUSTOM_PROPERTIES_PREFIX)) {
+                customProperties.put(paramName, context.getParameter(paramName));
+            }
+        }
+
         TelemetryConfiguration config = TelemetryConfiguration.createDefault();
         config.setInstrumentationKey(context.getParameter(KEY_INSTRUMENTATION_KEY));
         telemetryClient = new TelemetryClient(config);
@@ -122,6 +138,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
 
     private void trackRequest(String name, SampleResult sr) {
         Map<String, String> properties = new HashMap<String, String>();
+        properties.putAll(customProperties);
         properties.put("Bytes", Long.toString(sr.getBytesAsLong()));
         properties.put("SentBytes", Long.toString(sr.getSentBytes()));
         properties.put("ConnectTime", Long.toString(sr.getConnectTime()));
