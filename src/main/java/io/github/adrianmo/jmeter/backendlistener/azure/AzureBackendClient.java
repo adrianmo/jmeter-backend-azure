@@ -143,6 +143,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         Date timestamp = new Date(sr.getTimeStamp());
         Duration duration = new Duration(sr.getTime());
         RequestTelemetry req = new RequestTelemetry(name, timestamp, duration, sr.getResponseCode(), sr.getErrorCount() == 0);
+        req.getContext().getOperation().setName(name);
 
         if (sr.getURL() != null) {
             req.setUrl(sr.getURL());
