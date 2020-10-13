@@ -15,7 +15,7 @@
         <org.apache.commons>3.9</org.apache.commons>
         <org.apache.jmeter.version>5.2.1</org.apache.jmeter.version>
         <com.microsoft.azure.version>2.5.1</com.microsoft.azure.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <junit.jupiter.version>5.0.0</junit.jupiter.version>
         <junit.vintage.version>${junit.version}.0</junit.vintage.version>
         <junit.jupiter.version>5.0.0</junit.jupiter.version>
