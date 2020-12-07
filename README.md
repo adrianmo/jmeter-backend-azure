@@ -28,6 +28,7 @@ The following test results metrics are exposed by the plugin.
 - ThreadName
 - GrpThreads
 - AllThreads
+- (Optional) aih.{response_header}
 
 ### Plugin installation
 
@@ -53,6 +54,7 @@ Then, in the Parameters table, configure the following attributes.
 | *liveMetrics* | Boolean to indicate whether or not real-time metrics are enabled and available in the [Live Metrics Stream](https://docs.microsoft.com/en-us/azure/azure-monitor/app/live-stream). Defaults to `true`. | No |
 | *samplersList* | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No |
 | *useRegexForSamplerList* | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`. | No |
+| *responseHeaders* | Optional list of response headers spearated by a semi-colon (`;`) that the listener will collect and send values to Application Instights. | No |
 
 *Example of configuration:*
 
