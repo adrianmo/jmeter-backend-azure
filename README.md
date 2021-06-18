@@ -1,6 +1,7 @@
 # jmeter-backend-azure
 
-![Java CI](https://github.com/adrianmo/jmeter-backend-azure/workflows/Java%20CI/badge.svg)
+[![CI](https://github.com/adrianmo/jmeter-backend-azure/actions/workflows/maven.yml/badge.svg)](https://github.com/adrianmo/jmeter-backend-azure/actions/workflows/maven.yml)
+[![Publish package to the Maven Central Repository](https://github.com/adrianmo/jmeter-backend-azure/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/adrianmo/jmeter-backend-azure/actions/workflows/maven-publish.yml)
 
 A JMeter plug-in that enables you to send test results to Azure Application Insights.
 
