@@ -22,7 +22,7 @@ jobs:
       run: mvn -v
 
     - name: Test
-      run: mvn test verify
+      run: mvn test
 
     - name: Build
       run: mvn package
