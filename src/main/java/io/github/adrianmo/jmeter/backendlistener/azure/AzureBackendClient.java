@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class AzureBackendClient extends AbstractBackendListenerClient {
 
@@ -38,7 +40,9 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final String KEY_SAMPLERS_LIST = "samplersList";
     private static final String KEY_USE_REGEX_FOR_SAMPLER_LIST = "useRegexForSamplerList";
     private static final String KEY_CUSTOM_PROPERTIES_PREFIX = "ai.";
-
+    private static final String KEY_HEADERS_PREFIX = "aih.";
+    private static final String KEY_RESPONSE_HEADERS = "responseHeaders";
+    
     /**
      * Default argument values.
      */
@@ -67,6 +71,11 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
      * Custom properties.
      */
     private Map<String, String> customProperties = new HashMap<String, String>();
+
+    /**
+     * Recording response headers.
+     */
+    private String[] responseHeaders = {};
 
     /**
      * Whether to send metrics to the Live Metrics Stream.
@@ -116,6 +125,8 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
             String paramName = iterator.next();
             if (paramName.startsWith(KEY_CUSTOM_PROPERTIES_PREFIX)) {
                 customProperties.put(paramName, context.getParameter(paramName));
+            } else if (paramName.equals(KEY_RESPONSE_HEADERS)) {
+                responseHeaders = context.getParameter(KEY_RESPONSE_HEADERS).trim().toLowerCase().split("\\s*".concat(SEPARATOR).concat("\\s*"));
             }
         }
 
@@ -156,6 +167,14 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         properties.put("GrpThreads", Integer.toString(sr.getGroupThreads()));
         properties.put("AllThreads", Integer.toString(sr.getAllThreads()));
         properties.put("SampleCount", Integer.toString(sr.getSampleCount()));
+
+        for (String header : responseHeaders) {
+            Pattern pattern = Pattern.compile("^".concat(header).concat(":(.*)$"), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(sr.getResponseHeaders());
+            if (matcher.find()) {
+                properties.put(KEY_HEADERS_PREFIX.concat(header), matcher.group(1).trim());
+            }
+        }
 
         Date timestamp = new Date(sr.getTimeStamp());
         Duration duration = new Duration(sr.getTime());
