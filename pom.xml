@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.adrianmo</groupId>
     <artifactId>jmeter.backendlistener.azure</artifactId>
-    <version>0.2.3</version>
+    <version>0.2.5</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>A JMeter plug-in that enables you to send test results to Azure Monitor.</description>
@@ -12,14 +12,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.apache.commons>3.9</org.apache.commons>
-        <org.apache.jmeter.version>5.2.1</org.apache.jmeter.version>
-        <com.microsoft.azure.version>2.5.1</com.microsoft.azure.version>
-        <junit.version>4.12</junit.version>
-        <junit.jupiter.version>5.0.0</junit.jupiter.version>
-        <junit.vintage.version>${junit.version}.0</junit.vintage.version>
-        <junit.jupiter.version>5.0.0</junit.jupiter.version>
-        <junit.platform.version>1.0.0</junit.platform.version>
+        <org.apache.commons>3.12.0</org.apache.commons>
+        <org.apache.jmeter.version>5.4.1</org.apache.jmeter.version>
+        <com.microsoft.azure.version>2.6.3</com.microsoft.azure.version>
+        <junit.version>4.13.2</junit.version>
+        <junit.jupiter.version>5.7.2</junit.jupiter.version>
+        <junit.platform.version>1.7.2</junit.platform.version>
     </properties>
 
     <dependencies>
@@ -76,12 +74,6 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-runner</artifactId>
             <version>${junit.platform.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit.vintage.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
