@@ -36,6 +36,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
      */
     private static final String KEY_TEST_NAME = "testName";
     private static final String KEY_INSTRUMENTATION_KEY = "instrumentationKey";
+    private static final String KEY_CONNECTION_STRING = "connectionString";
     private static final String KEY_LIVE_METRICS = "liveMetrics";
     private static final String KEY_SAMPLERS_LIST = "samplersList";
     private static final String KEY_USE_REGEX_FOR_SAMPLER_LIST = "useRegexForSamplerList";
@@ -47,7 +48,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
      * Default argument values.
      */
     private static final String DEFAULT_TEST_NAME = "jmeter";
-    private static final String DEFAULT_INSTRUMENTATION_KEY = "";
+    private static final String DEFAULT_CONNECTION_STRING = "";
     private static final boolean DEFAULT_LIVE_METRICS = true;
     private static final String DEFAULT_SAMPLERS_LIST = "";
     private static final boolean DEFAULT_USE_REGEX_FOR_SAMPLER_LIST = false;
@@ -105,7 +106,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     public Arguments getDefaultParameters() {
         Arguments arguments = new Arguments();
         arguments.addArgument(KEY_TEST_NAME, DEFAULT_TEST_NAME);
-        arguments.addArgument(KEY_INSTRUMENTATION_KEY, DEFAULT_INSTRUMENTATION_KEY);
+        arguments.addArgument(KEY_CONNECTION_STRING, DEFAULT_CONNECTION_STRING);
         arguments.addArgument(KEY_LIVE_METRICS, Boolean.toString(DEFAULT_LIVE_METRICS));
         arguments.addArgument(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST);
         arguments.addArgument(KEY_USE_REGEX_FOR_SAMPLER_LIST, Boolean.toString(DEFAULT_USE_REGEX_FOR_SAMPLER_LIST));
@@ -131,7 +132,17 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         }
 
         TelemetryConfiguration config = TelemetryConfiguration.createDefault();
-        config.setInstrumentationKey(context.getParameter(KEY_INSTRUMENTATION_KEY));
+        String instrumentationKey = context.getParameter(KEY_INSTRUMENTATION_KEY);
+        if (instrumentationKey != null) {
+            log.warn("'instrumentationKey' is deprecated, use 'connectionString' instead");
+            config.setInstrumentationKey(instrumentationKey);
+        }
+
+        String connectionString = context.getParameter(KEY_CONNECTION_STRING);
+        if (connectionString != null) {
+            config.setConnectionString(connectionString);
+        }
+
         telemetryClient = new TelemetryClient(config);
         if (liveMetrics) {
             QuickPulse.INSTANCE.initialize(config);
