@@ -56,11 +56,11 @@ Then, in the Parameters table, configure the following attributes.
 | *samplersList* | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No |
 | *useRegexForSamplerList* | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`. | No |
 | *responseHeaders* | Optional list of response headers spearated by a semi-colon (`;`) that the listener will collect and send values to Application Instights. | No |
-| *instrumentationKey* | The Instrumentation Key of your Application Insights instance. Deprecated: use *connectionString* instead. | No |
+| *instrumentationKey* | The Instrumentation Key of your Application Insights instance. ⚠️ Deprecated: use *connectionString* instead. | No |
 
 *Example of configuration:*
 
-![Screenshot of configuration](docs/configuration.png "Screenshot of JMeter configuration")
+![Screenshot of configuration](docs/configuration.jpg "Screenshot of JMeter configuration")
 
 #### Custom properties
 
