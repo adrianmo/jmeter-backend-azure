@@ -43,6 +43,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final String KEY_CUSTOM_PROPERTIES_PREFIX = "ai.";
     private static final String KEY_HEADERS_PREFIX = "aih.";
     private static final String KEY_RESPONSE_HEADERS = "responseHeaders";
+    private static final String KEY_LOG_RESPONSE = "logResponse";
     
     /**
      * Default argument values.
@@ -52,6 +53,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final boolean DEFAULT_LIVE_METRICS = true;
     private static final String DEFAULT_SAMPLERS_LIST = "";
     private static final boolean DEFAULT_USE_REGEX_FOR_SAMPLER_LIST = false;
+    private static final boolean DEFAULT_LOG_RESPONSE = false;
 
     /**
      * Separator for samplers list.
@@ -98,6 +100,11 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
      */
     private Set<String> samplersToFilter;
 
+    /**
+     * Whether to log the response to the backend
+     */
+    private boolean logResponse;
+
     public AzureBackendClient() {
         super();
     }
@@ -110,6 +117,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         arguments.addArgument(KEY_LIVE_METRICS, Boolean.toString(DEFAULT_LIVE_METRICS));
         arguments.addArgument(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST);
         arguments.addArgument(KEY_USE_REGEX_FOR_SAMPLER_LIST, Boolean.toString(DEFAULT_USE_REGEX_FOR_SAMPLER_LIST));
+        arguments.addArgument(KEY_LOG_RESPONSE, Boolean.toString(DEFAULT_LOG_RESPONSE));
 
         return arguments;
     }
@@ -120,6 +128,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         liveMetrics = context.getBooleanParameter(KEY_LIVE_METRICS, DEFAULT_LIVE_METRICS);
         samplersList = context.getParameter(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST).trim();
         useRegexForSamplerList = context.getBooleanParameter(KEY_USE_REGEX_FOR_SAMPLER_LIST, DEFAULT_USE_REGEX_FOR_SAMPLER_LIST);
+        logResponse = context.getBooleanParameter(KEY_LOG_RESPONSE, DEFAULT_LOG_RESPONSE);
 
         Iterator<String> iterator = context.getParameterNamesIterator();
         while (iterator.hasNext()) {
@@ -194,6 +203,10 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
 
         if (sr.getURL() != null) {
             req.setUrl(sr.getURL());
+        }
+
+        if (logResponse) {
+            properties.put("Response", sr.getResponseDataAsString());
         }
 
         MapUtil.copy(properties, req.getProperties());
