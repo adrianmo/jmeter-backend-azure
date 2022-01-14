@@ -50,21 +50,21 @@ To make JMeter send test result metrics to Azure Application Insights, in your *
 **Thread Group** > Add > Listener > Backend Listener, and choose `io.github.adrianmo.jmeter.backendlistener.azure.AzureBackendClient` as `Backend Listener Implementation`.
 Then, in the Parameters table, configure the following attributes.
 
-| Attribute                | Description                                                                                                                                                                                                                                                    | Required |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| _connectionString_       | The [Connection String](https://docs.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=java) of your Application Insights instance                                                                                                        | Yes      |
-| _testName_               | Name of the test. This value is used to differentiate metrics across test runs or plans in Application Insights and allow you to filter them.                                                                                                                  | Yes      |
-| _liveMetrics_            | Boolean to indicate whether or not real-time metrics are enabled and available in the [Live Metrics Stream](https://docs.microsoft.com/en-us/azure/azure-monitor/app/live-stream). Defaults to `true`.                                                         | No       |
-| _samplersList_           | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No       |
-| _useRegexForSamplerList_ | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`.                                                                                                                                                      | No       |
-| _responseHeaders_        | Optional list of response headers separated by a semi-colon (`;`) that the listener will collect and send values to Application Insights.                                                                                                                      | No       |
-| _logResponseData_        | Boolean to indicate whether or not the response data should be captured. If set to `true`, the response data will be captured as a string into the _ResponseData_ property. Defaults to `false`.                                                               | No       |
-| _logSampleData_          | Boolean to indicate whether or not the sample data should be captured. If set to `true`, the sample data will be captured as a string into the _SampleData_ property. Defaults to `false`.                                                                     | No       |
-| _instrumentationKey_     | The Instrumentation Key of your Application Insights instance. <br>⚠️ **Deprecated**: use _connectionString_ instead.                                                                                                                                          | No       |
+| Attribute | Description | Required |
+|---|---|---|
+| *connectionString* | The [Connection String](https://docs.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=java) of your Application Insights instance | Yes |
+| *testName* | Name of the test. This value is used to differentiate metrics across test runs or plans in Application Insights and allow you to filter them. | Yes |
+| *liveMetrics* | Boolean to indicate whether or not real-time metrics are enabled and available in the [Live Metrics Stream](https://docs.microsoft.com/en-us/azure/azure-monitor/app/live-stream). Defaults to `true`. | No |
+| *samplersList* | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No |
+| *useRegexForSamplerList* | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`. | No |
+| *responseHeaders* | Optional list of response headers separated by a semi-colon (`;`) that the listener will collect and send values to Application Insights. | No |
+| *logResponseData* | Boolean to indicate whether or not the response data should be captured. If set to `true`, the response data will be captured as a string into the _ResponseData_ property. Defaults to `false`. | No |
+| *logSampleData* | Boolean to indicate whether or not the sample data should be captured. If set to `true`, the sample data will be captured as a string into the _SampleData_ property. Defaults to `false`. | No | 
+| *instrumentationKey* | The Instrumentation Key of your Application Insights instance. <br>⚠️ **Deprecated**: use *connectionString* instead. | No |
 
-_Example of configuration:_
+*Example of configuration:*
 
-![Screenshot of configuration](docs/configuration.jpg 'Screenshot of JMeter configuration')
+![Screenshot of configuration](docs/configuration.jpg "Screenshot of JMeter configuration")
 
 #### Custom properties
 
@@ -75,11 +75,11 @@ You can add custom data to your metrics by adding properties starting with `ai.`
 Test result metrics are available in the **requests** dimension of your Application Insights instance.
 In the image you can see an example of how you can visualize the duration of the requests made during your test run.
 
-![Request duration](docs/requestduration.png 'Screenshot of test requests duration')
+![Request duration](docs/requestduration.png "Screenshot of test requests duration")
 
 Additionally, if you enabled `liveMetrics` in the configuration, you can watch your test performance in real-time in the Live Metrics Stream blade.
 
-![Live Metrics Stream](docs/livemetrics.png 'Screenshot of live metrics stream')
+![Live Metrics Stream](docs/livemetrics.png "Screenshot of live metrics stream")
 
 ## Contributing
 
