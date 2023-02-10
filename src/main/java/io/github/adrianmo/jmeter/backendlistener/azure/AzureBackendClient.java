@@ -213,7 +213,8 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         if (sr.getURL() != null) {
             req.setUrl(sr.getURL());
         }
-
+if (sr.getErrorCount() != 0)
+{
         if (logSampleData) {
             req.getProperties().put("SampleData", sr.getSamplerData());
         }
@@ -221,7 +222,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         if (logResponseData) {
             properties.put("ResponseData", sr.getResponseDataAsString());
         }
-
+ }
         MapUtil.copy(properties, req.getProperties());
         telemetryClient.trackRequest(req);
     }
