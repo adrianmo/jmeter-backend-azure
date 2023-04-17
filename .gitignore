@@ -25,6 +25,7 @@ hs_err_pid*
 # IDE
 .idea/
 *.iml
+.vscode/
 
 target/
 dependency-reduced-pom.xml
