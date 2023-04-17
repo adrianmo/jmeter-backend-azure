@@ -66,6 +66,11 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final String SEPARATOR = ";";
 
     /**
+     * Truncated length of the request and response data.
+     */
+    private static final int MAX_DATA_LENGTH = 1024;
+
+    /**
      * Application Insights telemetry client.
      */
     private TelemetryClient telemetryClient;
@@ -216,21 +221,32 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         Date timestamp = new Date(sr.getTimeStamp());
         Duration duration = new Duration(sr.getTime());
         RequestTelemetry req = new RequestTelemetry(name, timestamp, duration, sr.getResponseCode(),
-                sr.getErrorCount() == 0);
+                sr.isSuccessful());
         req.getContext().getOperation().setName(name);
 
         if (sr.getURL() != null) {
             req.setUrl(sr.getURL());
         }
 
-        if ((logSampleData == DataLoggingOption.Always) ||
-                (logSampleData == DataLoggingOption.OnFailure && sr.getErrorCount() > 0)) {
-            req.getProperties().put("SampleData", sr.getSamplerData());
+        if (sr.getSamplerData() != null && ((logSampleData == DataLoggingOption.Always) ||
+                (logSampleData == DataLoggingOption.OnFailure && !sr.isSuccessful()))) {
+
+            if (sr.getDataType() == SampleResult.TEXT) {
+                String samplerData = sr.getSamplerData().length() <= MAX_DATA_LENGTH
+                        ? sr.getSamplerData()
+                        : sr.getSamplerData().substring(0, MAX_DATA_LENGTH) + "...[TRUNCATED]";
+                properties.put("SampleData", samplerData);
+            } else {
+                properties.put("SampleData", "[BINARY DATA]");
+            }
         }
 
         if (logResponseData == DataLoggingOption.Always ||
-                (logResponseData == DataLoggingOption.OnFailure && sr.getErrorCount() > 0)) {
-            properties.put("ResponseData", sr.getResponseDataAsString());
+                (logResponseData == DataLoggingOption.OnFailure && !sr.isSuccessful())) {
+            String responseData = sr.getResponseDataAsString().length() <= MAX_DATA_LENGTH
+                    ? sr.getResponseDataAsString()
+                    : sr.getResponseDataAsString().substring(0, MAX_DATA_LENGTH) + "...[TRUNCATED]";
+            properties.put("ResponseData", responseData);
         }
 
         MapUtil.copy(properties, req.getProperties());

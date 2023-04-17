@@ -21,7 +21,14 @@ public enum DataLoggingOption {
                 return option;
             }
         }
-        // Default to OnFailure
-        return OnFailure;
+
+        // Conditions to provide backwards compatibility
+        if (value == "true")
+            return DataLoggingOption.Always;
+        else if (value == "false")
+            return DataLoggingOption.Never;
+        else
+            // Default value
+            return OnFailure;
     }
 }
