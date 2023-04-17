@@ -6,6 +6,9 @@ import com.microsoft.applicationinsights.internal.quickpulse.QuickPulse;
 import com.microsoft.applicationinsights.internal.util.MapUtil;
 import com.microsoft.applicationinsights.telemetry.Duration;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
+
+import io.github.adrianmo.jmeter.backendlistener.DataLoggingOption;
+
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
@@ -54,8 +57,8 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final boolean DEFAULT_LIVE_METRICS = true;
     private static final String DEFAULT_SAMPLERS_LIST = "";
     private static final boolean DEFAULT_USE_REGEX_FOR_SAMPLER_LIST = false;
-    private static final boolean DEFAULT_LOG_RESPONSE_DATA = false;
-    private static final boolean DEFAULT_LOG_SAMPLE_DATA = false;
+    private static final DataLoggingOption DEFAULT_LOG_RESPONSE_DATA = DataLoggingOption.OnFailure;
+    private static final DataLoggingOption DEFAULT_LOG_SAMPLE_DATA = DataLoggingOption.OnFailure;
 
     /**
      * Separator for samplers list.
@@ -105,12 +108,12 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     /**
      * Whether to log the response data to the backend
      */
-    private boolean logResponseData;
+    private DataLoggingOption logResponseData;
 
     /**
      * Whether to log the sample data to the backend
      */
-    private boolean logSampleData;
+    private DataLoggingOption logSampleData;
 
     public AzureBackendClient() {
         super();
@@ -124,8 +127,8 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         arguments.addArgument(KEY_LIVE_METRICS, Boolean.toString(DEFAULT_LIVE_METRICS));
         arguments.addArgument(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST);
         arguments.addArgument(KEY_USE_REGEX_FOR_SAMPLER_LIST, Boolean.toString(DEFAULT_USE_REGEX_FOR_SAMPLER_LIST));
-        arguments.addArgument(KEY_LOG_RESPONSE_DATA, Boolean.toString(DEFAULT_LOG_RESPONSE_DATA));
-        arguments.addArgument(KEY_LOG_SAMPLE_DATA, Boolean.toString(DEFAULT_LOG_SAMPLE_DATA));
+        arguments.addArgument(KEY_LOG_RESPONSE_DATA, DEFAULT_LOG_RESPONSE_DATA.getValue());
+        arguments.addArgument(KEY_LOG_SAMPLE_DATA, DEFAULT_LOG_SAMPLE_DATA.getValue());
 
         return arguments;
     }
@@ -135,9 +138,12 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         testName = context.getParameter(KEY_TEST_NAME, DEFAULT_TEST_NAME);
         liveMetrics = context.getBooleanParameter(KEY_LIVE_METRICS, DEFAULT_LIVE_METRICS);
         samplersList = context.getParameter(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST).trim();
-        useRegexForSamplerList = context.getBooleanParameter(KEY_USE_REGEX_FOR_SAMPLER_LIST, DEFAULT_USE_REGEX_FOR_SAMPLER_LIST);
-        logResponseData = context.getBooleanParameter(KEY_LOG_RESPONSE_DATA, DEFAULT_LOG_RESPONSE_DATA);
-        logSampleData = context.getBooleanParameter(KEY_LOG_SAMPLE_DATA, DEFAULT_LOG_SAMPLE_DATA);
+        useRegexForSamplerList = context.getBooleanParameter(KEY_USE_REGEX_FOR_SAMPLER_LIST,
+                DEFAULT_USE_REGEX_FOR_SAMPLER_LIST);
+        logResponseData = DataLoggingOption
+                .fromString(context.getParameter(KEY_LOG_RESPONSE_DATA, DEFAULT_LOG_RESPONSE_DATA.getValue()));
+        logSampleData = DataLoggingOption
+                .fromString(context.getParameter(KEY_LOG_SAMPLE_DATA, DEFAULT_LOG_SAMPLE_DATA.getValue()));
 
         Iterator<String> iterator = context.getParameterNamesIterator();
         while (iterator.hasNext()) {
@@ -145,7 +151,8 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
             if (paramName.startsWith(KEY_CUSTOM_PROPERTIES_PREFIX)) {
                 customProperties.put(paramName, context.getParameter(paramName));
             } else if (paramName.equals(KEY_RESPONSE_HEADERS)) {
-                responseHeaders = context.getParameter(KEY_RESPONSE_HEADERS).trim().toLowerCase().split("\\s*".concat(SEPARATOR).concat("\\s*"));
+                responseHeaders = context.getParameter(KEY_RESPONSE_HEADERS).trim().toLowerCase()
+                        .split("\\s*".concat(SEPARATOR).concat("\\s*"));
             }
         }
 
@@ -198,7 +205,8 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         properties.put("SampleCount", Integer.toString(sr.getSampleCount()));
 
         for (String header : responseHeaders) {
-            Pattern pattern = Pattern.compile("^".concat(header).concat(":(.*)$"), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile("^".concat(header).concat(":(.*)$"),
+                    Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(sr.getResponseHeaders());
             if (matcher.find()) {
                 properties.put(KEY_HEADERS_PREFIX.concat(header), matcher.group(1).trim());
@@ -207,18 +215,21 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
 
         Date timestamp = new Date(sr.getTimeStamp());
         Duration duration = new Duration(sr.getTime());
-        RequestTelemetry req = new RequestTelemetry(name, timestamp, duration, sr.getResponseCode(), sr.getErrorCount() == 0);
+        RequestTelemetry req = new RequestTelemetry(name, timestamp, duration, sr.getResponseCode(),
+                sr.getErrorCount() == 0);
         req.getContext().getOperation().setName(name);
 
         if (sr.getURL() != null) {
             req.setUrl(sr.getURL());
         }
 
-        if (logSampleData) {
+        if ((logSampleData == DataLoggingOption.Always) ||
+                (logSampleData == DataLoggingOption.OnFailure && sr.getErrorCount() > 0)) {
             req.getProperties().put("SampleData", sr.getSamplerData());
         }
 
-        if (logResponseData) {
+        if (logResponseData == DataLoggingOption.Always ||
+                (logResponseData == DataLoggingOption.OnFailure && sr.getErrorCount() > 0)) {
             properties.put("ResponseData", sr.getResponseDataAsString());
         }
 

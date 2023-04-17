@@ -58,8 +58,8 @@ Then, in the Parameters table, configure the following attributes.
 | *samplersList* | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No |
 | *useRegexForSamplerList* | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`. | No |
 | *responseHeaders* | Optional list of response headers separated by a semi-colon (`;`) that the listener will collect and send values to Application Insights. | No |
-| *logResponseData* | Boolean to indicate whether or not the response data should be captured. If set to `true`, the response data will be captured as a string into the _ResponseData_ property. Defaults to `false`. | No |
-| *logSampleData* | Boolean to indicate whether or not the sample data should be captured. If set to `true`, the sample data will be captured as a string into the _SampleData_ property. Defaults to `false`. | No | 
+| *logResponseData* | This value indicates whether or not the response data should be captured. Options are `Always`, `OnFailure`, or `Never`. The response data will be captured as a string into the _ResponseData_ property. Defaults to `OnFailure`. | No |
+| *logSampleData* | Boolean to indicate whether or not the sample data should be captured. Options are `Always`, `OnFailure`, or `Never`. The sample data will be captured as a string into the _SampleData_ property. Defaults to `OnFailure`. | No |
 | *instrumentationKey* | The Instrumentation Key of your Application Insights instance. <br>⚠️ **Deprecated**: use *connectionString* instead. | No |
 
 *Example of configuration:*
