@@ -32,7 +32,7 @@ jobs:
 
       - name: Set project version
         run: |
-          branch=$(git rev-parse --abbrev-ref HEAD)
+          branch=$(git rev-parse --short HEAD)
           mvn versions:set -DgenerateBackupPoms=false -DnewVersion=$branch-SNAPSHOT
 
       - name: Build
