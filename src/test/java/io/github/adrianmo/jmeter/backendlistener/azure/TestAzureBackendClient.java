@@ -38,7 +38,7 @@ public class TestAzureBackendClient {
     private BackendListenerContext context;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Arguments args = new Arguments();
         args.addArgument("testName", "test-1");
         context = new BackendListenerContext(args);
