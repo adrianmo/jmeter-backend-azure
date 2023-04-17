@@ -32,8 +32,8 @@ jobs:
 
       - name: Set project version
         run: |
-          branch=$(git rev-parse --short HEAD)
-          mvn versions:set -DgenerateBackupPoms=false -DnewVersion=$branch-SNAPSHOT
+          commit_sha=$(git rev-parse --short ${{ github.sha }})
+          mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${commit_sha}-SNAPSHOT
 
       - name: Build
         run: mvn package
