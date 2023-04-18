@@ -58,13 +58,12 @@ Then, in the Parameters table, configure the following attributes.
 | *samplersList* | Optional list of samplers separated by a semi-colon (`;`) that the listener will collect and send metrics to Application Insights. If the list is empty, the listener will not filter samplers and send metrics from all of them. Defaults to an empty string. | No |
 | *useRegexForSamplerList* | If set to `true` the `samplersList` will be evaluated as a regex to filter samplers. Defaults to `false`. | No |
 | *responseHeaders* | Optional list of response headers separated by a semi-colon (`;`) that the listener will collect and send values to Application Insights. | No |
-| *logResponseData* | Boolean to indicate whether or not the response data should be captured. If set to `true`, the response data will be captured as a string into the _ResponseData_ property. Defaults to `false`. | No |
-| *logSampleData* | Boolean to indicate whether or not the sample data should be captured. If set to `true`, the sample data will be captured as a string into the _SampleData_ property. Defaults to `false`. | No | 
+| *logResponseDataOption* | Option to Selected "onError"/"always"/"None", if onError is selected if any sample fails ResponseData of that sample will also be logged and incase of always, responseData will be saved adlways , if selected Nothing/None, ReponseData will never be saved  Defaults to `onError`. | No |
+| *logSampleDataOption* | Option to Selected "onError"/"always"/"None", if onError is selected if any sample fails SanpleData of that sample will also be logged and incase of always, SampleData will be saved adlways , if selected Nothing/None, SampleData will never be saved  Defaults to `onError`. | No | 
 | *instrumentationKey* | The Instrumentation Key of your Application Insights instance. <br>⚠️ **Deprecated**: use *connectionString* instead. | No |
 
 *Example of configuration:*
-
-![Screenshot of configuration](docs/configuration.jpg "Screenshot of JMeter configuration")
+![image](https://user-images.githubusercontent.com/46219412/232789063-023f578e-069c-4f29-bf7c-64292f1aaa0c.png)
 
 #### Custom properties
 

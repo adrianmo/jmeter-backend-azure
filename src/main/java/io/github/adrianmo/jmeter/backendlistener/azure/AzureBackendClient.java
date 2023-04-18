@@ -43,8 +43,10 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final String KEY_CUSTOM_PROPERTIES_PREFIX = "ai.";
     private static final String KEY_HEADERS_PREFIX = "aih.";
     private static final String KEY_RESPONSE_HEADERS = "responseHeaders";
-    private static final String KEY_LOG_RESPONSE_DATA = "logResponseData";
-    private static final String KEY_LOG_SAMPLE_DATA = "logSampleData";
+    //private static final String KEY_LOG_RESPONSE_DATA = "logResponseData";
+    private static final String KEY_LOG_RESPONSE_DATA_OPTION = "logResponseDataOption";
+    //private static final String KEY_LOG_SAMPLE_DATA = "logSampleData";
+    private static final String KEY_LOG_SAMPLE_DATA_OPTION = "logSampleDataOption";
 
     /**
      * Default argument values.
@@ -54,8 +56,10 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final boolean DEFAULT_LIVE_METRICS = true;
     private static final String DEFAULT_SAMPLERS_LIST = "";
     private static final boolean DEFAULT_USE_REGEX_FOR_SAMPLER_LIST = false;
-    private static final boolean DEFAULT_LOG_RESPONSE_DATA = false;
-    private static final boolean DEFAULT_LOG_SAMPLE_DATA = false;
+   //private static final boolean DEFAULT_LOG_RESPONSE_DATA = false;
+    private static final String DEFAULT_LOG_RESPONSE_DATA_OPTION = "onError";
+    //private static final boolean DEFAULT_LOG_SAMPLE_DATA = false;
+    private static final String DEFAULT_LOG_SAMPLE_DATA_OPTION = "onError";
 
     /**
      * Separator for samplers list.
@@ -105,12 +109,21 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     /**
      * Whether to log the response data to the backend
      */
-    private boolean logResponseData;
+    //private boolean logResponseData;
+    /**
+     * Option value selected for response data which can be sent to the backend
+     */
+    private String logResponseDataOption;
 
     /**
      * Whether to log the sample data to the backend
      */
-    private boolean logSampleData;
+    //private boolean logSampleData;
+
+    /**
+     * Option value selected for sample data which can be sent to the backend
+     */
+    private String logSampleDataOption;
 
     public AzureBackendClient() {
         super();
@@ -124,8 +137,10 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         arguments.addArgument(KEY_LIVE_METRICS, Boolean.toString(DEFAULT_LIVE_METRICS));
         arguments.addArgument(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST);
         arguments.addArgument(KEY_USE_REGEX_FOR_SAMPLER_LIST, Boolean.toString(DEFAULT_USE_REGEX_FOR_SAMPLER_LIST));
-        arguments.addArgument(KEY_LOG_RESPONSE_DATA, Boolean.toString(DEFAULT_LOG_RESPONSE_DATA));
-        arguments.addArgument(KEY_LOG_SAMPLE_DATA, Boolean.toString(DEFAULT_LOG_SAMPLE_DATA));
+        //arguments.addArgument(KEY_LOG_RESPONSE_DATA, Boolean.toString(DEFAULT_LOG_RESPONSE_DATA));
+        arguments.addArgument(KEY_LOG_RESPONSE_DATA_OPTION, DEFAULT_LOG_RESPONSE_DATA_OPTION);
+        //arguments.addArgument(KEY_LOG_SAMPLE_DATA, Boolean.toString(DEFAULT_LOG_SAMPLE_DATA));
+        arguments.addArgument(KEY_LOG_SAMPLE_DATA_OPTION, DEFAULT_LOG_SAMPLE_DATA_OPTION);
 
         return arguments;
     }
@@ -136,8 +151,13 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         liveMetrics = context.getBooleanParameter(KEY_LIVE_METRICS, DEFAULT_LIVE_METRICS);
         samplersList = context.getParameter(KEY_SAMPLERS_LIST, DEFAULT_SAMPLERS_LIST).trim();
         useRegexForSamplerList = context.getBooleanParameter(KEY_USE_REGEX_FOR_SAMPLER_LIST, DEFAULT_USE_REGEX_FOR_SAMPLER_LIST);
-        logResponseData = context.getBooleanParameter(KEY_LOG_RESPONSE_DATA, DEFAULT_LOG_RESPONSE_DATA);
-        logSampleData = context.getBooleanParameter(KEY_LOG_SAMPLE_DATA, DEFAULT_LOG_SAMPLE_DATA);
+        //logResponseData = context.getBooleanParameter(KEY_LOG_RESPONSE_DATA, DEFAULT_LOG_RESPONSE_DATA);
+        logResponseDataOption = context.getParameter(KEY_LOG_RESPONSE_DATA_OPTION, DEFAULT_LOG_RESPONSE_DATA_OPTION);
+        //logSampleData = context.getBooleanParameter(KEY_LOG_SAMPLE_DATA, DEFAULT_LOG_SAMPLE_DATA);
+        logSampleDataOption = context.getParameter(KEY_LOG_SAMPLE_DATA_OPTION, DEFAULT_LOG_SAMPLE_DATA_OPTION);
+        log.warn("Logging Response Data on  "+logResponseDataOption);
+        log.warn("Logging Sample Data on  "+logSampleDataOption);
+
 
         Iterator<String> iterator = context.getParameterNamesIterator();
         while (iterator.hasNext()) {
@@ -213,12 +233,27 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
         if (sr.getURL() != null) {
             req.setUrl(sr.getURL());
         }
-
-        if (logSampleData) {
+// Verify what Option for SampleData Collection is Selected if 'onError' is Selected And Error is observed, Log it
+        if (logSampleDataOption.equals("onError")) {
+            // If There is error Reported Log the Message
+            if (sr.getErrorCount() != 0)
+            {
+            req.getProperties().put("SampleData", sr.getSamplerData());
+        }
+        }
+        // Else Check if 'always' Selected, Always Log Sample Data
+        else if (logSampleDataOption.equals("always")) {
             req.getProperties().put("SampleData", sr.getSamplerData());
         }
 
-        if (logResponseData) {
+// Verify what Option for ResponseData Collection is Selected if 'onError' is Selected And Error is observed, Log it
+        if (logResponseDataOption.equals("onError")) {
+            if (sr.getErrorCount() != 0) {
+                properties.put("ResponseData", sr.getResponseDataAsString());
+            }
+        }
+        // Else Check if 'always' Selected, Always Log Response Data
+        else if (logResponseDataOption.equals("always")) {
             properties.put("ResponseData", sr.getResponseDataAsString());
         }
 
