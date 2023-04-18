@@ -46,7 +46,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     //private static final String KEY_LOG_RESPONSE_DATA = "logResponseData";
     private static final String KEY_LOG_RESPONSE_DATA_OPTION = "logResponseDataOption";
     //private static final String KEY_LOG_SAMPLE_DATA = "logSampleData";
-    private static final String KEY_LOG_SAMPLE_DATA_OPTION = "logResponseDataOption";
+    private static final String KEY_LOG_SAMPLE_DATA_OPTION = "logSampleDataOption";
 
     /**
      * Default argument values.
@@ -57,7 +57,7 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
     private static final String DEFAULT_SAMPLERS_LIST = "";
     private static final boolean DEFAULT_USE_REGEX_FOR_SAMPLER_LIST = false;
    //private static final boolean DEFAULT_LOG_RESPONSE_DATA = false;
-    private static final String DEFAULT_LOG_RESPONSE_DATA_OPTION = "OnError";
+    private static final String DEFAULT_LOG_RESPONSE_DATA_OPTION = "onError";
     //private static final boolean DEFAULT_LOG_SAMPLE_DATA = false;
     private static final String DEFAULT_LOG_SAMPLE_DATA_OPTION = "onError";
 
