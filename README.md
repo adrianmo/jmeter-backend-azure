@@ -63,8 +63,7 @@ Then, in the Parameters table, configure the following attributes.
 | *instrumentationKey* | The Instrumentation Key of your Application Insights instance. <br>⚠️ **Deprecated**: use *connectionString* instead. | No |
 
 *Example of configuration:*
-
-![Screenshot of configuration](docs/configuration.jpg "Screenshot of JMeter configuration")
+![image](https://user-images.githubusercontent.com/46219412/232789063-023f578e-069c-4f29-bf7c-64292f1aaa0c.png)
 
 #### Custom properties
 
