@@ -27,16 +27,17 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-      with:
-    name: jmeter-backendlistener-azure
-    path: target/*.jar
-      !target/*-javadoc.jar
-      !target/*-sources.jar
-      !target/original-*.jar
-    if-no-files-found: warn
-      env:
-        JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/8.0.362-9/x64
-
+      
+    - name: Attach JAR as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: jmeter-backendlistener-azure
+          path: |
+            target/*.jar
+            !target/*-javadoc.jar
+            !target/*-sources.jar
+            !target/original-*.jar
+    
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
