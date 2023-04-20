@@ -2,6 +2,8 @@ name: CI
 
 on:
   workflow_dispatch:
+  release:
+    types: [created]
   pull_request:
     branches:
       - master
@@ -30,7 +32,7 @@ jobs:
       - name: Test
         run: mvn test
 
-      - name: Set project version
+      - name: Set project version (snapshot)
         run: |
           commit_sha=$(git rev-parse --short ${{ github.sha }})
           mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${commit_sha}-SNAPSHOT
@@ -47,3 +49,42 @@ jobs:
             !target/*-javadoc.jar
             !target/*-sources.jar
             !target/original-*.jar
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: zulu
+          java-package: jdk
+
+      - name: Set project version (release)
+        run: |
+          mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.release.tag_name }}
+
+      - name: Build
+        run: mvn package
+
+      - name: Upload JAR to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/jmeter.backendlistener.azure-${{ github.event.release.tag_name }}.jar
+          asset_name: jmeter.backendlistener.azure-${{ github.event.release.tag_name }}.jar
+          tag: ${{ github.event.release.tag_name }}
+
+      - name: Publish to Maven Central
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          nexus_username: ${{ secrets.OSSRH_USERNAME }}
+          nexus_password: ${{ secrets.OSSRH_TOKEN }}
+          server_id: ossrh
