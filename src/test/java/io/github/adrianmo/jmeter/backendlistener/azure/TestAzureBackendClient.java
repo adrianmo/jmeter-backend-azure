@@ -16,8 +16,6 @@ import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.github.adrianmo.jmeter.backendlistener.DataLoggingOption;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

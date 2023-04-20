@@ -7,8 +7,6 @@ import com.microsoft.applicationinsights.internal.util.MapUtil;
 import com.microsoft.applicationinsights.telemetry.Duration;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
 
-import io.github.adrianmo.jmeter.backendlistener.DataLoggingOption;
-
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
@@ -232,20 +230,29 @@ public class AzureBackendClient extends AbstractBackendListenerClient {
                 (logSampleData == DataLoggingOption.OnFailure && !sr.isSuccessful()))) {
 
             if (sr.getDataType() == SampleResult.TEXT) {
-                String samplerData = sr.getSamplerData().length() <= MAX_DATA_LENGTH
-                        ? sr.getSamplerData()
-                        : sr.getSamplerData().substring(0, MAX_DATA_LENGTH) + "...[TRUNCATED]";
+                String samplerData;
+                if (sr.getSamplerData().length() > MAX_DATA_LENGTH) {
+                    log.warn("Sample data is too long, truncating it to {} characters", MAX_DATA_LENGTH);
+                    samplerData = sr.getSamplerData().substring(0, MAX_DATA_LENGTH) + "...[TRUNCATED]";
+                } else {
+                    samplerData = sr.getSamplerData();
+                }
                 properties.put("SampleData", samplerData);
             } else {
+                log.warn("Sample data is in binary format, cannot log it");
                 properties.put("SampleData", "[BINARY DATA]");
             }
         }
 
         if (logResponseData == DataLoggingOption.Always ||
                 (logResponseData == DataLoggingOption.OnFailure && !sr.isSuccessful())) {
-            String responseData = sr.getResponseDataAsString().length() <= MAX_DATA_LENGTH
-                    ? sr.getResponseDataAsString()
-                    : sr.getResponseDataAsString().substring(0, MAX_DATA_LENGTH) + "...[TRUNCATED]";
+            String responseData;
+            if (sr.getResponseDataAsString().length() > MAX_DATA_LENGTH) {
+                log.warn("Response data is too long, truncating it to {} characters", MAX_DATA_LENGTH);
+                responseData = sr.getResponseDataAsString().substring(0, MAX_DATA_LENGTH) + "...[TRUNCATED]";
+            } else {
+                responseData = sr.getResponseDataAsString();
+            }
             properties.put("ResponseData", responseData);
         }
 
