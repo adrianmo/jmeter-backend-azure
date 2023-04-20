@@ -1,28 +1,49 @@
 name: CI
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2.3.4
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v2.1.0
-      with:
-        java-version: 8
-        distribution: zulu
-        java-package: jdk
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: zulu
+          java-package: jdk
 
-    - name: Maven version
-      run: mvn -v
+      - name: Maven version
+        run: mvn -v
 
-    - name: Test
-      run: mvn test
+      - name: Test
+        run: mvn test
 
-    - name: Build
-      run: mvn package
+      - name: Set project version
+        run: |
+          commit_sha=$(git rev-parse --short ${{ github.sha }})
+          mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${commit_sha}-SNAPSHOT
+
+      - name: Build
+        run: mvn package
+
+      - name: Attach JAR as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: jmeter-backendlistener-azure
+          path: |
+            target/*.jar
+            !target/*-javadoc.jar
+            !target/*-sources.jar
+            !target/original-*.jar
