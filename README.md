@@ -64,7 +64,7 @@ Then, in the Parameters table, configure the following attributes.
 
 *Example of configuration:*
 
-![Screenshot of configuration](docs/configuration.jpg "Screenshot of JMeter configuration")
+![Screenshot of configuration](docs/configuration.png "Screenshot of JMeter configuration")
 
 #### Custom properties
 
